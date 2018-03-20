@@ -1,6 +1,7 @@
 ﻿using NonogramSolver.Solver;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -80,6 +81,40 @@ namespace NonogramSolver.Tests
             var descriptor = MakeDescriptor(ranges);
 
             Assert.Equal(resultStatus, solver.GetRowStatus(row, descriptor));
+        }
+
+        private char CharForCell(CellState state)
+        {
+            switch (state)
+            {
+                case CellState.Empty:
+                    return '.';
+                case CellState.Filled:
+                    return 'X';
+                case CellState.Undefined:
+                    return ' ';
+                default:
+                    throw new ArgumentException("state value: " + state);
+            }
+        }
+
+        [Theory]
+        [InlineData(3, new int[] { 1 }, new string[] { "X..", ".X.", "..X" })]
+        [InlineData(4, new int[] { 2 }, new string[] { "XX..", ".XX.", "..XX" })]
+        [InlineData(7, new int[] { 1, 2 }, new string[] { "X.XX...", "X..XX..", "X...XX.", "X....XX",
+            ".X.XX..", ".X..XX.", ".X...XX",
+            "..X.XX.", "..X..XX",
+            "...X.XX"})]
+        public void generate_permutations(int rowSize, int[] ranges, string[] expected)
+        {
+            var solver = new RowSolver();
+            var descriptor = MakeDescriptor(ranges);
+            var result = solver.MakePossibleStates(rowSize, descriptor);
+            var stringResult = result.Select(row => new string(row.Select(CharForCell).ToArray())).ToArray();
+            Array.Sort(stringResult);
+            Array.Sort(expected);
+            Debug.WriteLine(String.Join(",", stringResult));
+            Assert.Equal(expected, stringResult);
         }
     }
 }
