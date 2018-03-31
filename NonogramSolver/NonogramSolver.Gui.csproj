@@ -93,5 +93,11 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NonogramSolver.Solver\NonogramSolver.Solver.csproj">
+      <Project>{6110db1f-a54e-47d8-8916-b9e526af92a2}</Project>
+      <Name>NonogramSolver.Solver</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

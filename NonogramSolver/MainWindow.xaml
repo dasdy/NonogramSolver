@@ -6,7 +6,9 @@
         xmlns:local="clr-namespace:NonogramSolver"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        
-    </Grid>
+    <StackPanel>
+        <Canvas>
+            
+        </Canvas>
+    </StackPanel>
 </Window>
