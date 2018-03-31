@@ -6,15 +6,16 @@ using System.Threading.Tasks;
 
 namespace NonogramSolver.Solver
 {
-    public class RowSolver
+    public class Solver
     {
         public RowStatus GetRowStatus(IList<Cell> row, RowDescriptor rowDescriptor)
         {
-            
+
             if (row.All(cell => cell.State != CellState.Undefined))
             {
                 return CheckFilledRowStatus(row, rowDescriptor);
-            } else
+            }
+            else
             {
                 return CheckPartialRowStatus(row, rowDescriptor);
             }
@@ -100,6 +101,36 @@ namespace NonogramSolver.Solver
             int filledCells = rowDescriptor.BlockSizes.Sum();
             var blocks = rowDescriptor.BlockSizes.Select(blockSize => Enumerable.Repeat(CellState.Filled, blockSize));
             return GeneratePermutations(blocks, rowLength - filledCells + 1);
+        }
+
+        public int RemoveConflictingStates(IEnumerable<CellState> rowState, int rowNumber, List<List<List<CellState>>> columnsStates)
+        {
+            int removed = 0;
+            for (int j = 0; j < columnsStates.Count; j++)
+            {
+                if (rowState.ElementAt(j) != CellState.Undefined)
+                {
+                    removed += columnsStates[j].RemoveAll(state => state[rowNumber] != rowState.ElementAt(j));
+                }
+            }
+            return removed;
+        }
+
+        public IEnumerable<CellState> FindCommonCells(IEnumerable<IEnumerable<CellState>> rowStates)
+        {
+
+            var res = Enumerable.Repeat((int)(CellState.Filled | CellState.Empty),
+                rowStates.First().Count()).ToList();
+            foreach (var rowState in rowStates)
+            {
+                for (int i = 0; i < res.Count; i++)
+                {
+                    var rowStateCellValue = rowState.ElementAt(i);
+
+                    res[i] = res[i] & (int)rowStateCellValue;
+                }
+            }
+            return res.Select(x => (CellState)x);
         }
 
         private IEnumerable<IEnumerable<CellState>> GeneratePermutations(IEnumerable<IEnumerable<CellState>> blocks, int zerosAmount, int startCounter = 0)

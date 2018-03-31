@@ -2,6 +2,6 @@
 {
     public enum CellState
     {
-        Undefined, Empty, Filled
+        Undefined = 0, Empty = 1, Filled = 2
     }
 }

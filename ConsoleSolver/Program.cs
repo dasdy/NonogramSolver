@@ -10,6 +10,8 @@ namespace ConsoleSolver
     {
         static void Main(string[] args)
         {
+            
         }
+        
     }
 }
