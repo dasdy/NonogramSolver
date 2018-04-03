@@ -60,24 +60,13 @@ namespace NonogramSolver
                     int inner_i = i;
                     rectangle.MouseDown += (e, o) =>
                     {
-                        Trace.WriteLine($"click on i:{inner_i}, j:{inner_j}");
+                        Cell cell = nonogram.Cells[inner_i][inner_j];
+                        RotateState(cell);
+                        rectangle.Fill = ChooseBrush(emptyCell, filledCell, undefinedCell, cell.State);
                     };
+                    CellState state = nonogram.Cells[i][j].State;
 
-                    switch (nonogram.Cells[i][j].State)
-                    {
-                        case Solver.CellState.Undefined:
-                            rectangle.Fill = undefinedCell;
-                            break;
-                        case Solver.CellState.Filled:
-                            rectangle.Fill = filledCell;
-                            break;
-                        case Solver.CellState.Empty:
-                            rectangle.Fill = emptyCell;
-                            break;
-                        default:
-                            throw new ArgumentException("wtf: " + nonogram.Cells[i][j].State);
-
-                    }
+                    rectangle.Fill = ChooseBrush(emptyCell, filledCell, undefinedCell, state);
                     rectangle.StrokeThickness = 2;
                     rectangle.Stroke = Brushes.Black;
 
@@ -154,6 +143,46 @@ namespace NonogramSolver
                     canvas.Children.Add(text);
                 }
             }
+        }
+
+        private void RotateState(Cell cell)
+        {
+            switch (cell.State)
+            {
+                case CellState.Empty:
+                    cell.State = CellState.Filled;
+                    break;
+                case CellState.Filled:
+                    cell.State = CellState.Undefined;
+                    break;
+                case CellState.Undefined:
+                    cell.State = CellState.Empty;
+                    break;
+                default:
+                    throw new ArgumentException("wtf: " + cell.State);
+            }
+        }
+
+        private static SolidColorBrush ChooseBrush(SolidColorBrush emptyCell, SolidColorBrush filledCell, SolidColorBrush undefinedCell, CellState state)
+        {
+            SolidColorBrush brush;
+            switch (state)
+            {
+                case Solver.CellState.Undefined:
+                    brush = undefinedCell;
+                    break;
+                case Solver.CellState.Filled:
+                    brush = filledCell;
+                    break;
+                case Solver.CellState.Empty:
+                    brush = emptyCell;
+                    break;
+                default:
+                    throw new ArgumentException("wtf: " + state);
+
+            }
+
+            return brush;
         }
 
         private static Nonogram genNonogram(int rows, int columns)
