@@ -4,7 +4,7 @@ namespace NonogramSolver.Solver
 {
     public class RowDescriptor
     {
-        public IList<int> BlockSizes { get; set; }
+        public IList<int> BlockSizes { get; set; } = new List<int>();
 
         public override string ToString()
         {
