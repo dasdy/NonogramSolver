@@ -8,8 +8,16 @@
         Title="MainWindow" Height="450" Width="800"
         SizeToContent="WidthAndHeight">
     <StackPanel>
-        <Canvas Width="1000" Height="600">
-            
-        </Canvas>
+        <StackPanel Orientation="Horizontal">
+            <local:NonogramView x:Name="filledNonogram">
+
+            </local:NonogramView>
+            <local:NonogramView x:Name="emptyNonogram">
+
+            </local:NonogramView>
+        </StackPanel>
+        <TextBlock Text="sample text" Name="statusText">
+
+        </TextBlock>
     </StackPanel>
 </Window>

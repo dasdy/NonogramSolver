@@ -23,7 +23,7 @@ namespace NonogramSolver.Solver
 
         private RowStatus CheckPartialRowStatus(IList<Cell> row, RowDescriptor rowDescriptor)
         {
-            throw new NotImplementedException();
+            return RowStatus.FilledPartially;
         }
 
         private static RowStatus CheckFilledRowStatus(IList<Cell> row, RowDescriptor rowDescriptor)

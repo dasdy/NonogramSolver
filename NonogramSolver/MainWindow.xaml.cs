@@ -30,159 +30,79 @@ namespace NonogramSolver
 
             Solver.Nonogram nonogram = genNonogram(rows, columns);
 
-            DrawNonogramField(rows, columns, nonogram);
+            var content = (StackPanel)this.Content;
+            var stackPanel = ((StackPanel)content.Children[0]);
+            var nonogramControl = (NonogramView)stackPanel.Children[0];
+            nonogramControl.Nonogram = nonogram;
+
+            var emptiedNonogram = CloneNonogram(nonogram);
+            TrySolve(emptiedNonogram);
+
+            var emptiedControl = (NonogramView)stackPanel.Children[1];
+            emptiedControl.Nonogram = emptiedNonogram;
+            
+            
+            
+            emptiedControl.PropertyChanged += (sender, args) =>
+            {
+                UpdateTextBox(((NonogramView)sender).Nonogram);
+            };
+
         }
 
-        private void DrawNonogramField(int rows, int columns, Solver.Nonogram nonogram)
+        private void TrySolve(Nonogram n)
+        {
+            var solver = new Solver.Solver();
+            for(int i = 0; i < n.Height; i++)
+            {
+                var descriptor = n.RowDescriptors[i];
+                var row = n.getRow(i);
+                solver.FillInvariantCells(row, descriptor);
+            }
+            for (int i = 0; i < n.Width; i++)
+            {
+                var descriptor = n.ColumnDescriptors[i];
+                var col = n.getColumn(i);
+                solver.FillInvariantCells(col, descriptor);
+            }
+        }
+
+        private Nonogram CloneNonogram(Nonogram nonogram)
+        {
+            var result = new Nonogram(nonogram.Width, nonogram.Height);
+            result.RowDescriptors = nonogram.RowDescriptors.ToList();
+            result.ColumnDescriptors = nonogram.ColumnDescriptors.ToList();
+            return result;
+        }
+
+        private void UpdateTextBox(Nonogram n)
         {
             var content = (StackPanel)this.Content;
-            var canvas = (Canvas)content.Children[0];
-            var squareLength = 30;
-            var horizontalOffset = squareLength * nonogram.RowDescriptors.Max(desc => desc.BlockSizes.Count);
-            var verticalOffset = squareLength * nonogram.ColumnDescriptors.Max(desc => desc.BlockSizes.Count);
-
-            SolidColorBrush emptyCell = new SolidColorBrush();
-            emptyCell.Color = Color.FromArgb(255, 255, 255, 255);
-            SolidColorBrush filledCell = new SolidColorBrush();
-            filledCell.Color = Color.FromArgb(120, 0, 0, 0);
-            SolidColorBrush undefinedCell = new SolidColorBrush();
-            undefinedCell.Color = Color.FromArgb(255, 255, 255, 0);
-
-
-            for (int i = 0; i < rows; i++)
+            var blk = (TextBlock)content.Children[1];
+            var solver = new Solver.Solver();
+            for(int i = 0; i < n.Height; i++)
             {
-                for (int j = 0; j < columns; j++)
+                var row = n.getRow(i);
+                var rowDesc = n.RowDescriptors[i];
+                if(solver.GetRowStatus(row, rowDesc) != RowStatus.FilledCorrectly)
                 {
-
-                    // Create a red Ellipse.
-                    var rectangle = new Rectangle();
-                    int inner_j = j;
-                    int inner_i = i;
-                    rectangle.MouseDown += (e, o) =>
-                    {
-                        Cell cell = nonogram.Cells[inner_i][inner_j];
-                        RotateState(cell);
-                        rectangle.Fill = ChooseBrush(emptyCell, filledCell, undefinedCell, cell.State);
-                    };
-                    CellState state = nonogram.Cells[i][j].State;
-
-                    rectangle.Fill = ChooseBrush(emptyCell, filledCell, undefinedCell, state);
-                    rectangle.StrokeThickness = 2;
-                    rectangle.Stroke = Brushes.Black;
-
-                    // Set the width and height of the Ellipse.
-                    rectangle.Width = squareLength;
-                    rectangle.Height = squareLength;
-
-                    Canvas.SetLeft(rectangle, horizontalOffset + j * squareLength);
-                    Canvas.SetTop(rectangle, verticalOffset + i * squareLength);
-
-                    // Add the Ellipse to the StackPanel.
-                    canvas.Children.Add(rectangle);
+                    blk.Text = "ERRORS FOUND BITHC";
+                    return;
                 }
             }
 
-            const int horizontalTextOffset = 5;
-            for (int i = 0; i < rows; i++)
+            for (int i = 0; i < n.Width; i++)
             {
-                var rowDescriptor = nonogram.RowDescriptors[i];
-
-                int originalOffset = horizontalOffset - rowDescriptor.BlockSizes.Count * squareLength;
-
-                for (int j = 0; j < rowDescriptor.BlockSizes.Count; j++)
+                var row = n.getColumn(i);
+                var rowDesc = n.ColumnDescriptors[i];
+                if (solver.GetRowStatus(row, rowDesc) != RowStatus.FilledCorrectly)
                 {
-                    var rectangle = new Rectangle();
-                    rectangle.StrokeThickness = 1;
-                    rectangle.Stroke = Brushes.Black;
-
-                    // Set the width and height of the Ellipse.
-                    rectangle.Width = squareLength - .5;
-                    rectangle.Height = squareLength - .5;
-
-                    Canvas.SetLeft(rectangle, originalOffset + j * squareLength);
-                    Canvas.SetTop(rectangle, verticalOffset + i * squareLength);
-
-                    // Add the Ellipse to the StackPanel.
-                    canvas.Children.Add(rectangle);
-
-                    var text = new TextBlock();
-                    text.Foreground = Brushes.Black;
-                    text.Text = rowDescriptor.BlockSizes[j].ToString();
-                    Canvas.SetTop(text, verticalOffset + i * squareLength);
-                    Canvas.SetLeft(text, horizontalTextOffset + originalOffset + j * squareLength);
-                    canvas.Children.Add(text);
+                    blk.Text = "ERRORS FOUND BITHC";
+                    return;
                 }
             }
-            for (int i = 0; i < columns; i++)
-            {
-                var rowDescriptor = nonogram.ColumnDescriptors[i];
 
-                int originalOffset = verticalOffset - rowDescriptor.BlockSizes.Count * squareLength;
-
-                for (int j = 0; j < rowDescriptor.BlockSizes.Count; j++)
-                {
-                    var rectangle = new Rectangle();
-                    rectangle.StrokeThickness = 1;
-                    rectangle.Stroke = Brushes.Black;
-
-                    // Set the width and height of the Ellipse.
-                    rectangle.Width = squareLength - .5;
-                    rectangle.Height = squareLength - .5;
-
-                    Canvas.SetLeft(rectangle, horizontalOffset + i * squareLength);
-                    Canvas.SetTop(rectangle, originalOffset + j * squareLength);
-
-                    // Add the Ellipse to the StackPanel.
-                    canvas.Children.Add(rectangle);
-
-                    var text = new TextBlock();
-                    text.Foreground = Brushes.Black;
-                    text.Text = rowDescriptor.BlockSizes[j].ToString();
-                    Canvas.SetTop(text, originalOffset + j * squareLength);
-                    Canvas.SetLeft(text, horizontalTextOffset + horizontalOffset + i * squareLength);
-                    canvas.Children.Add(text);
-                }
-            }
-        }
-
-        private void RotateState(Cell cell)
-        {
-            switch (cell.State)
-            {
-                case CellState.Empty:
-                    cell.State = CellState.Filled;
-                    break;
-                case CellState.Filled:
-                    cell.State = CellState.Undefined;
-                    break;
-                case CellState.Undefined:
-                    cell.State = CellState.Empty;
-                    break;
-                default:
-                    throw new ArgumentException("wtf: " + cell.State);
-            }
-        }
-
-        private static SolidColorBrush ChooseBrush(SolidColorBrush emptyCell, SolidColorBrush filledCell, SolidColorBrush undefinedCell, CellState state)
-        {
-            SolidColorBrush brush;
-            switch (state)
-            {
-                case Solver.CellState.Undefined:
-                    brush = undefinedCell;
-                    break;
-                case Solver.CellState.Filled:
-                    brush = filledCell;
-                    break;
-                case Solver.CellState.Empty:
-                    brush = emptyCell;
-                    break;
-                default:
-                    throw new ArgumentException("wtf: " + state);
-
-            }
-
-            return brush;
+            blk.Text = "Correct!";
         }
 
         private static Nonogram genNonogram(int rows, int columns)
@@ -245,28 +165,10 @@ namespace NonogramSolver
             {
                 rowDescriptor.BlockSizes.Add(cellCounter);
             }
-            Trace.WriteLine("for row: " + RowToString(row) + ": " + String.Join(",", rowDescriptor.BlockSizes));
+            
             return rowDescriptor;
         }
 
-        private static string RowToString(IEnumerable<Cell> row)
-        {
-            return new string(row.Select(CharForCell).ToArray());
-        }
-
-        private static char CharForCell(Cell state)
-        {
-            switch (state.State)
-            {
-                case CellState.Empty:
-                    return '.';
-                case CellState.Filled:
-                    return 'X';
-                case CellState.Undefined:
-                    return ' ';
-                default:
-                    throw new ArgumentException("state value: " + state);
-            }
-        }
+        
     }
 }
