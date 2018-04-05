@@ -43,33 +43,6 @@ namespace NonogramSolver.Tests
         }
 
         [Theory]
-        [InlineData(3, new int[] { 3 }, new CellState[] { CellState.Filled, CellState.Filled, CellState.Filled })]
-        [InlineData(3, new int[] { 1, 1 }, new CellState[] { CellState.Filled, CellState.Empty, CellState.Filled })]
-        [InlineData(6, new int[] { 2, 1, 1 }, new CellState[] { CellState.Filled, CellState.Filled, CellState.Empty,
-                                        CellState.Filled, CellState.Empty,
-                                        CellState.Filled })]
-        [InlineData(6, new int[] { 5 }, new CellState[] { CellState.Undefined, CellState.Filled, CellState.Filled,
-                                        CellState.Filled, CellState.Filled, CellState.Undefined })]
-
-        [InlineData(6, new int[] { 4 }, new CellState[] { CellState.Undefined, CellState.Undefined, CellState.Filled,
-                                        CellState.Filled,CellState.Undefined, CellState.Undefined })]
-        [InlineData(6, new int[] { 3, 1 }, new CellState[] { CellState.Undefined, CellState.Filled, CellState.Filled,
-                                        CellState.Undefined,CellState.Undefined, CellState.Undefined })]
-        [InlineData(6, new int[] { 2, 2 }, new CellState[] { CellState.Undefined, CellState.Filled, CellState.Undefined,
-                                        CellState.Undefined,CellState.Filled, CellState.Undefined })]
-        [InlineData(6, new int[] { 1 }, new CellState[] { CellState.Undefined, CellState.Undefined, CellState.Undefined,
-                                        CellState.Undefined, CellState.Undefined, CellState.Undefined })]
-        public void fill_invariant_cells(int rowSize, int[] ranges, CellState[] resultStates)
-        {
-            var initState = MakeEmptyRow(rowSize);
-            var solver = new Solver.Solver();
-
-            solver.FillInvariantCells(initState, MakeDescriptor(ranges));
-            Assert.Equal(MakeList(resultStates), initState);
-        }
-
-
-        [Theory]
         [InlineData(new int[] { 3 }, new CellState[] { CellState.Filled, CellState.Filled, CellState.Filled }, RowStatus.FilledCorrectly)]
         [InlineData(new int[] { 3 }, new CellState[] { CellState.Empty, CellState.Filled, CellState.Filled }, RowStatus.ContainsErrors)]
         [InlineData(new int[] { 3 }, new CellState[] { CellState.Empty, CellState.Filled, CellState.Empty }, RowStatus.ContainsErrors)]

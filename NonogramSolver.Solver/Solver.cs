@@ -53,49 +53,6 @@ namespace NonogramSolver.Solver
             return RowStatus.FilledCorrectly;
         }
 
-        /// <summary>
-        /// fill cells in row that are guaranteed to be filled. for example,
-        /// in row length 5, blocks 2,2 would guarantee full row to be filled
-        /// </summary>
-        /// <param name="row">row that should be filled if possible(will be mutated)</param>
-        public void FillInvariantCells(IList<Cell> row, RowDescriptor rowDescriptor)
-        {
-            var rowLength = row.Count;
-            //blocks that should be filled in the row with their empty neighbors
-            var busyBlocks = rowDescriptor.BlockSizes.Count;
-            foreach (var i in rowDescriptor.BlockSizes)
-            {
-                busyBlocks += i;
-            }
-            busyBlocks--;
-            if (busyBlocks >= rowLength / 2)
-            {
-                //cells that are undefined from each side of the block
-                int cutAmount = row.Count - busyBlocks;
-
-                int position = 0;
-                foreach (var blockLength in rowDescriptor.BlockSizes)
-                {
-                    position += cutAmount;
-                    if (blockLength > cutAmount)
-                    {
-                        //cells that should be filled from this block
-                        var blockPartToFill = blockLength - cutAmount;
-                        for (int i = 0; i < blockPartToFill; i++)
-                        {
-                            row[position + i].State = CellState.Filled;
-                        }
-                        position += blockPartToFill;
-                        if (cutAmount == 0 && position < row.Count)
-                        {
-                            row[position].State = CellState.Empty;
-                        }
-                        position++;
-                    }
-                }
-            }
-        }
-
         public IEnumerable<IEnumerable<CellState>> MakePossibleStates(int rowLength, RowDescriptor rowDescriptor)
         {
             int filledCells = rowDescriptor.BlockSizes.Sum();
