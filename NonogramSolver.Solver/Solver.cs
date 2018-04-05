@@ -53,11 +53,92 @@ namespace NonogramSolver.Solver
             return RowStatus.FilledCorrectly;
         }
 
-        public IEnumerable<IEnumerable<CellState>> MakePossibleStates(int rowLength, RowDescriptor rowDescriptor)
+
+        public void RecursivelySolve(Nonogram n)
         {
-            int filledCells = rowDescriptor.BlockSizes.Sum();
-            var blocks = rowDescriptor.BlockSizes.Select(blockSize => Enumerable.Repeat(CellState.Filled, blockSize));
-            return GeneratePermutations(blocks, rowLength - filledCells + 1);
+            var rowsPossibleStates = n.RowDescriptors.Select(desc => Utils.MakePossibleStates(n.Width, desc).Select(x => x.ToList()).ToList()).ToList();
+            var colsPossibleStates = n.ColumnDescriptors.Select(desc => Utils.MakePossibleStates(n.Height, desc).Select(x => x.ToList()).ToList()).ToList();
+            List<List<CellState>> rowSolvingCandidates = null;
+            List<List<CellState>> colSolvingCandidates = null;
+
+            bool fullySolved = false;
+            while (rowsPossibleStates.All(rowStates => rowStates.Count > 0)
+                && colsPossibleStates.All(columnStates => columnStates.Count > 0)
+                && !fullySolved)
+            {
+                rowSolvingCandidates = rowsPossibleStates.Select(rowStates => FindCommonCells(rowStates).ToList()).ToList();
+                colSolvingCandidates = colsPossibleStates.Select(rowStates => FindCommonCells(rowStates).ToList()).ToList();
+                bool changeFound = true;
+                while (changeFound)
+                {
+                    changeFound = false;
+                    for (int i = 0; i < rowSolvingCandidates.Count; i++)
+                    {
+                        var rowCandidate = rowSolvingCandidates[i];
+
+                        int rowsCandidatesRemoved = RemoveConflictingStates(rowCandidate, i, colsPossibleStates);
+                        if (rowsCandidatesRemoved > 0)
+                        {
+                            changeFound = true;
+                        }
+                    }
+                    if (colsPossibleStates.Any(columnStates => columnStates.Count == 0))
+                    {
+                        break;
+                    }
+                    colSolvingCandidates = colsPossibleStates.Select(rowStates => FindCommonCells(rowStates).ToList()).ToList();
+                    for (int i = 0; i < colSolvingCandidates.Count; i++)
+                    {
+                        var rowCandidate = colSolvingCandidates[i];
+
+                        int rowsCandidatesRemoved = RemoveConflictingStates(rowCandidate, i, rowsPossibleStates);
+                        if (rowsCandidatesRemoved > 0)
+                        {
+                            changeFound = true;
+                        }
+                    }
+                    if (rowsPossibleStates.Any(rowStates => rowStates.Count == 0))
+                    {
+                        break;
+                    }
+                    rowSolvingCandidates = rowsPossibleStates.Select(rowStates => FindCommonCells(rowStates).ToList()).ToList();
+                    
+                }
+                fullySolved = rowSolvingCandidates.All(rowState => rowState.All(cell => cell != CellState.Undefined)) &&
+                    colSolvingCandidates.All(rowState => rowState.All(cell => cell != CellState.Undefined));
+                if (!fullySolved)
+                {
+                    //find row with several candidates left and remove all others
+                    foreach(var colStates in colsPossibleStates)
+                    {
+                        if (colStates.Count > 1)
+                        {
+                            colStates.RemoveRange(1, colStates.Count - 1);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            for (int i = 0; i < n.Height; i++)
+            {
+                var row = n.getRow(i);
+                var commonCells = rowSolvingCandidates[i];
+                for (int j = 0; j < commonCells.Count; j++)
+                {
+                    row[j].State = commonCells[j];
+                }
+
+            }
+            for (int i = 0; i < n.Width; i++)
+            {
+                var col = n.getColumn(i);
+                var commonCells = colSolvingCandidates[i];
+                for (int j = 0; j < commonCells.Count; j++)
+                {
+                    col[j].State = commonCells[j];
+                }
+            }
         }
 
         public int RemoveConflictingStates(IEnumerable<CellState> rowState, int rowNumber, List<List<List<CellState>>> columnsStates)
@@ -90,33 +171,10 @@ namespace NonogramSolver.Solver
             return res.Select(x => (CellState)x);
         }
 
-        private IEnumerable<IEnumerable<CellState>> GeneratePermutations(IEnumerable<IEnumerable<CellState>> blocks, int zerosAmount, int startCounter = 0)
-        {
-            if (blocks.Count() == 0)
-            {
-                if (zerosAmount > 0)
-                {
-                    yield return Enumerable.Repeat(CellState.Empty, zerosAmount - 1);
-                }
-                yield break;
-            }
-            for (int x = startCounter; x < zerosAmount - blocks.Count() + startCounter + 1; x++)
-            {
-                var tail = blocks.Skip(1);
-                foreach (var generatedTail in GeneratePermutations(tail, zerosAmount - x, 1))
-                {
-                    var newState = Enumerable.Repeat(CellState.Empty, x).ToList();
-                    newState.AddRange(blocks.ElementAt(0));
-                    newState.AddRange(generatedTail);
-                    yield return newState;
-                }
-            }
-        }
-
         public void Solve(Nonogram n)
         {
-            var rowsPossibleStates = n.RowDescriptors.Select(desc => MakePossibleStates(n.Width, desc).Select(x => x.ToList()).ToList()).ToList();
-            var colsPossibleStates = n.ColumnDescriptors.Select(desc => MakePossibleStates(n.Height, desc).Select(x => x.ToList()).ToList()).ToList();
+            var rowsPossibleStates = n.RowDescriptors.Select(desc => Utils.MakePossibleStates(n.Width, desc).Select(x => x.ToList()).ToList()).ToList();
+            var colsPossibleStates = n.ColumnDescriptors.Select(desc => Utils.MakePossibleStates(n.Height, desc).Select(x => x.ToList()).ToList()).ToList();
             var rowSolvingCandidates = rowsPossibleStates.Select(rowStates => FindCommonCells(rowStates).ToList()).ToList();
             var colSolvingCandidates = colsPossibleStates.Select(rowStates => FindCommonCells(rowStates).ToList()).ToList();
 

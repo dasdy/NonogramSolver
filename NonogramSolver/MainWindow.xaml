@@ -5,19 +5,23 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NonogramSolver"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800"
+        Title="MainWindow" Height="450" Width="1000"
         SizeToContent="WidthAndHeight">
-    <StackPanel>
-        <StackPanel Orientation="Horizontal">
-            <local:NonogramView x:Name="filledNonogram">
+    <WrapPanel Orientation="Horizontal">
+        <local:NonogramView x:Name="filledNonogram">
 
-            </local:NonogramView>
-            <local:NonogramView x:Name="emptyNonogram">
+        </local:NonogramView>
+        <local:NonogramView x:Name="emptyNonogram">
 
-            </local:NonogramView>
-        </StackPanel>
+        </local:NonogramView>
+        <local:NonogramView x:Name="filledFully">
+
+        </local:NonogramView>
+        <local:NonogramView x:Name="acSolved">
+
+        </local:NonogramView>
         <TextBlock Text="sample text" Name="statusText">
 
         </TextBlock>
-    </StackPanel>
+    </WrapPanel>
 </Window>

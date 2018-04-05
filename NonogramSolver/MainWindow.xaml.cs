@@ -31,12 +31,12 @@ namespace NonogramSolver
 
             _solvedNonogram = Solver.NonogramFactory.MakeNonogram(rows, columns);
 
-            var content = (StackPanel)this.Content;
-            var stackPanel = ((StackPanel)content.Children[0]);
+            var stackPanel = ((WrapPanel)this.Content);
             var nonogramControl = (NonogramView)stackPanel.Children[0];
             nonogramControl.Nonogram = _solvedNonogram;
 
-            var emptiedNonogram = CloneNonogram(_solvedNonogram);
+            var emptiedNonogram = _solvedNonogram.Clone() as Nonogram;
+            emptiedNonogram.Clear();
             var solver = new Solver.Solver();
             solver.Solve(emptiedNonogram);
 
@@ -44,27 +44,41 @@ namespace NonogramSolver
             emptiedControl.Nonogram = emptiedNonogram;
 
 
+            var solvedFullyControl = (NonogramView)stackPanel.Children[2];
+            Nonogram solvedFullyNonogram = emptiedNonogram.Clone() as Nonogram;
+            solvedFullyControl.Nonogram = solvedFullyNonogram;
 
-            emptiedControl.PropertyChanged += (sender, args) =>
+            solver.RecursivelySolve(solvedFullyNonogram);
+            solvedFullyControl.Nonogram = solvedFullyNonogram;
+
+
+
+            var acSolvedControl = (NonogramView)stackPanel.Children[3];
+            Nonogram acSolvedNonogram = emptiedNonogram.Clone() as Nonogram;
+            solvedFullyControl.Nonogram = solvedFullyNonogram;
+
+            Task.Run(() =>
+            {
+                Task.Delay(2000);
+                var acSolver = new ArcConsistencySolver();
+                acSolver.Solve(acSolvedNonogram);
+            }).ContinueWith((tsk) =>
+            {
+                acSolvedControl.Nonogram = acSolvedNonogram;
+                UpdateTextBox(acSolvedNonogram);
+            }, TaskScheduler.FromCurrentSynchronizationContext());
+
+            acSolvedControl.PropertyChanged += (sender, args) =>
             {
                 UpdateTextBox(((NonogramView)sender).Nonogram);
             };
-            UpdateTextBox(emptiedNonogram);
-        }
-
-        private Nonogram CloneNonogram(Nonogram nonogram)
-        {
-            var result = new Nonogram(nonogram.Width, nonogram.Height);
-            result.RowDescriptors = nonogram.RowDescriptors.ToList();
-            result.ColumnDescriptors = nonogram.ColumnDescriptors.ToList();
-
-            return result;
+            UpdateTextBox(acSolvedNonogram);
         }
 
         private void UpdateTextBox(Nonogram n)
         {
-            var content = (StackPanel)this.Content;
-            var blk = (TextBlock)content.Children[1];
+            var content = (WrapPanel)this.Content;
+            var blk = (TextBlock)content.Children[content.Children.Count - 1];
             var solver = new Solver.Solver();
             for (int i = 0; i < n.Height; i++)
             {
@@ -72,13 +86,15 @@ namespace NonogramSolver
                 {
                     var expected = _solvedNonogram.Cells[i][j].State;
                     var real = n.Cells[i][j].State;
-                    var solvingStatus = (solver.GetRowStatus(n.getRow(i), n.RowDescriptors[i]) == RowStatus.ContainsErrors
-                            || solver.GetRowStatus(n.getColumn(j), n.ColumnDescriptors[j]) == RowStatus.ContainsErrors);
-                    if (real != CellState.Undefined
-                        && expected != real
-                        && solvingStatus)
+                    if (solver.GetRowStatus(n.getRow(i), n.RowDescriptors[i]) == RowStatus.ContainsErrors)
                     {
-                        blk.Text = $"found error at: row {i}, col {j}";
+                        blk.Text = $"found error at: row {i}";
+                        return;
+                    }
+                    
+                    if (solver.GetRowStatus(n.getColumn(j), n.ColumnDescriptors[j]) == RowStatus.ContainsErrors)
+                    {
+                        blk.Text = $"found error at: col {j}";
                         return;
                     }
                 }

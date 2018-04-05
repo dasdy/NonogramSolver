@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NonogramSolver.Solver
 {
-    public class Nonogram
+    public class Nonogram : ICloneable
     {
         public Nonogram(int width, int height)
         {
@@ -39,6 +39,36 @@ namespace NonogramSolver.Solver
         public Cell[] getColumn(int columnIndex)
         {
             return Cells.Select(row => row[columnIndex]).ToArray();
+        }
+
+        public void Clear()
+        {
+            foreach(var row in Cells)
+            {
+                foreach(var c in row)
+                {
+                    c.State = CellState.Undefined;
+                }
+            }
+        }
+
+        public object Clone()
+        {
+            var rows = RowDescriptors.Select(desc => new RowDescriptor() { BlockSizes = desc.BlockSizes.ToList() }).ToList();
+            var columns = ColumnDescriptors.Select(desc => new RowDescriptor() { BlockSizes = desc.BlockSizes.ToList() }).ToList();
+            var c = new Nonogram(Width, Height)
+            {
+                RowDescriptors = rows,
+                ColumnDescriptors = columns
+            };
+            for(int i = 0; i < Height; i++)
+            {
+                for(int j = 0; j < Width; j++)
+                {
+                    c.Cells[i][j].State = c.Cells[i][j].State;
+                }
+            }
+            return c;
         }
     }
 }

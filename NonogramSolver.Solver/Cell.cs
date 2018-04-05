@@ -16,7 +16,7 @@
             return this.State == otherCell.State;
         }
 
-        
+
         public override int GetHashCode()
         {
             return this.State.GetHashCode();
