@@ -160,7 +160,6 @@ namespace NonogramSolver.Solver
             }
             for (int i = 0; i < n.Width; i++)
             {
-                var descriptor = n.ColumnDescriptors[i];
                 var col = n.getColumn(i);
                 var commonCells = colSolvingCandidates[i];
                 for (int j = 0; j < commonCells.Count; j++)

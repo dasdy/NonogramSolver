@@ -42,9 +42,9 @@ namespace NonogramSolver
 
             var emptiedControl = (NonogramView)stackPanel.Children[1];
             emptiedControl.Nonogram = emptiedNonogram;
-            
-            
-            
+
+
+
             emptiedControl.PropertyChanged += (sender, args) =>
             {
                 UpdateTextBox(((NonogramView)sender).Nonogram);
@@ -57,7 +57,7 @@ namespace NonogramSolver
             var result = new Nonogram(nonogram.Width, nonogram.Height);
             result.RowDescriptors = nonogram.RowDescriptors.ToList();
             result.ColumnDescriptors = nonogram.ColumnDescriptors.ToList();
-            
+
             return result;
         }
 
@@ -65,14 +65,18 @@ namespace NonogramSolver
         {
             var content = (StackPanel)this.Content;
             var blk = (TextBlock)content.Children[1];
-            for(int i = 0; i < n.Height; i++)
+            var solver = new Solver.Solver();
+            for (int i = 0; i < n.Height; i++)
             {
-                for(int j = 0; j < n.Width; j++)
+                for (int j = 0; j < n.Width; j++)
                 {
                     var expected = _solvedNonogram.Cells[i][j].State;
                     var real = n.Cells[i][j].State;
+                    var solvingStatus = (solver.GetRowStatus(n.getRow(i), n.RowDescriptors[i]) == RowStatus.ContainsErrors
+                            || solver.GetRowStatus(n.getColumn(j), n.ColumnDescriptors[j]) == RowStatus.ContainsErrors);
                     if (real != CellState.Undefined
-                        && expected != real)
+                        && expected != real
+                        && solvingStatus)
                     {
                         blk.Text = $"found error at: row {i}, col {j}";
                         return;
@@ -81,8 +85,5 @@ namespace NonogramSolver
             }
             blk.Text = "no errors hooray";
         }
-
-
-        
     }
 }
