@@ -155,5 +155,62 @@ namespace NonogramSolver.Solver
                 }
             }
         }
+
+        public void Solve(Nonogram n)
+        {
+            var rowsPossibleStates = n.RowDescriptors.Select(desc => MakePossibleStates(n.Width, desc).Select(x => x.ToList()).ToList()).ToList();
+            var colsPossibleStates = n.ColumnDescriptors.Select(desc => MakePossibleStates(n.Height, desc).Select(x => x.ToList()).ToList()).ToList();
+            var rowSolvingCandidates = rowsPossibleStates.Select(rowStates => FindCommonCells(rowStates).ToList()).ToList();
+            var colSolvingCandidates = colsPossibleStates.Select(rowStates => FindCommonCells(rowStates).ToList()).ToList();
+
+            bool changeFound = true;
+            while (changeFound)
+            {
+                changeFound = false;
+                for (int i = 0; i < rowSolvingCandidates.Count; i++)
+                {
+                    var rowCandidate = rowSolvingCandidates[i];
+
+                    int rowsCandidatesRemoved = RemoveConflictingStates(rowCandidate, i, colsPossibleStates);
+                    if (rowsCandidatesRemoved > 0)
+                    {
+                        changeFound = true;
+                    }
+                }
+                colSolvingCandidates = colsPossibleStates.Select(rowStates => FindCommonCells(rowStates).ToList()).ToList();
+                for (int i = 0; i < colSolvingCandidates.Count; i++)
+                {
+                    var rowCandidate = colSolvingCandidates[i];
+
+                    int rowsCandidatesRemoved = RemoveConflictingStates(rowCandidate, i, rowsPossibleStates);
+                    if (rowsCandidatesRemoved > 0)
+                    {
+                        changeFound = true;
+                    }
+                }
+                rowSolvingCandidates = rowsPossibleStates.Select(rowStates => FindCommonCells(rowStates).ToList()).ToList();
+            }
+
+            for (int i = 0; i < n.Height; i++)
+            {
+                var row = n.getRow(i);
+                var commonCells = rowSolvingCandidates[i];
+                for (int j = 0; j < commonCells.Count; j++)
+                {
+                    row[j].State = commonCells[j];
+                }
+
+            }
+            for (int i = 0; i < n.Width; i++)
+            {
+                var descriptor = n.ColumnDescriptors[i];
+                var col = n.getColumn(i);
+                var commonCells = colSolvingCandidates[i];
+                for (int j = 0; j < commonCells.Count; j++)
+                {
+                    col[j].State = commonCells[j];
+                }
+            }
+        }
     }
 }
