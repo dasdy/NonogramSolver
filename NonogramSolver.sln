@@ -10,11 +10,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NonogramSolver.Gui", "Nonog
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NonogramSolver.Solver", "NonogramSolver.Solver\NonogramSolver.Solver.csproj", "{6110DB1F-A54E-47D8-8916-B9E526AF92A2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NonogramSolver.ConsoleSolver", "ConsoleSolver\NonogramSolver.ConsoleSolver.csproj", "{84BFD778-5259-4411-A2E5-136F295EC24E}"
-	ProjectSection(ProjectDependencies) = postProject
-		{6110DB1F-A54E-47D8-8916-B9E526AF92A2} = {6110DB1F-A54E-47D8-8916-B9E526AF92A2}
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NonogramSolver.Tests", "NonogramSolver.Tests\NonogramSolver.Tests.csproj", "{E5DC1ABB-4910-4DC2-8D59-6A56A74B2E69}"
 	ProjectSection(ProjectDependencies) = postProject
 		{6110DB1F-A54E-47D8-8916-B9E526AF92A2} = {6110DB1F-A54E-47D8-8916-B9E526AF92A2}
@@ -34,10 +29,6 @@ Global
 		{6110DB1F-A54E-47D8-8916-B9E526AF92A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6110DB1F-A54E-47D8-8916-B9E526AF92A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6110DB1F-A54E-47D8-8916-B9E526AF92A2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{84BFD778-5259-4411-A2E5-136F295EC24E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{84BFD778-5259-4411-A2E5-136F295EC24E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{84BFD778-5259-4411-A2E5-136F295EC24E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{84BFD778-5259-4411-A2E5-136F295EC24E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E5DC1ABB-4910-4DC2-8D59-6A56A74B2E69}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E5DC1ABB-4910-4DC2-8D59-6A56A74B2E69}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E5DC1ABB-4910-4DC2-8D59-6A56A74B2E69}.Release|Any CPU.ActiveCfg = Release|Any CPU
