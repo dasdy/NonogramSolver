@@ -7,21 +7,35 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="1000"
         SizeToContent="WidthAndHeight">
-    <WrapPanel Orientation="Horizontal">
-        <local:NonogramView x:Name="filledNonogram">
+    <ScrollViewer>
+        <WrapPanel Orientation="Horizontal">
+            <StackPanel>
+                <local:NonogramView x:Name="filledNonogram"/>
+                <TextBlock Text="Filled nonogram" HorizontalAlignment="Center"/>
+                <TextBlock Text="sample" HorizontalAlignment="Center"/>
+            </StackPanel>
 
-        </local:NonogramView>
-        <local:NonogramView x:Name="emptyNonogram">
+            <StackPanel>
+                <local:NonogramView x:Name="emptyNonogram"/>
+                <TextBlock Text="solved regularly" HorizontalAlignment="Center"/>
+                <TextBlock Text="sample" HorizontalAlignment="Center"/>
+            </StackPanel>
+            <StackPanel>
+                <local:NonogramView x:Name="filledFully"/>
+                <TextBlock Text="regular + one guess" HorizontalAlignment="Center"/>
+                <TextBlock Text="sample" HorizontalAlignment="Center"/>
+            </StackPanel>
+            <StackPanel>
+                <local:NonogramView x:Name="acSolved"/>
+                <TextBlock Text="arc consistency" HorizontalAlignment="Center"/>
+                <TextBlock Text="sample" HorizontalAlignment="Center"/>
+            </StackPanel>
 
-        </local:NonogramView>
-        <local:NonogramView x:Name="filledFully">
-
-        </local:NonogramView>
-        <local:NonogramView x:Name="acSolved">
-
-        </local:NonogramView>
-        <TextBlock Text="sample text" Name="statusText">
-
-        </TextBlock>
-    </WrapPanel>
+            <StackPanel>
+                <local:NonogramView x:Name="recursivelySolved"/>
+                <TextBlock Text="recursively solved" HorizontalAlignment="Center"/>
+                <TextBlock Text="sample" HorizontalAlignment="Center"/>
+            </StackPanel>
+        </WrapPanel>
+    </ScrollViewer>
 </Window>

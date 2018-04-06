@@ -65,13 +65,19 @@ namespace NonogramSolver.Solver
             {
                 if (v.ColType == ColumnType.Row)
                 {
-                    var state = v.PossibleStates.First();
+                    
                     if (v.PossibleStates.Count > 1)
                     {
-                        Console.WriteLine("??/////////////");
+                        var solver = new Solver();
+                        var state = solver.FindCommonCells(v.PossibleStates).ToList();
+                        for (int i = 0; i < state.Count; i++)
+                        {
+                            n.Cells[v.Index][i].State = state[i];
+                        }
                     }
                     else
                     {
+                        var state = v.PossibleStates.First();
                         for (int i = 0; i < state.Count; i++)
                         {
                             n.Cells[v.Index][i].State = state[i];

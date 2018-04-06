@@ -22,63 +22,92 @@ namespace NonogramSolver
     /// </summary>
     public partial class MainWindow : Window
     {
-        private readonly Nonogram _solvedNonogram;
+        private Nonogram _solvedNonogram;
         public MainWindow()
         {
             InitializeComponent();
-            var rows = 10;
-            var columns = 20;
-
-            _solvedNonogram = Solver.NonogramFactory.MakeNonogram(rows, columns);
-
-            var stackPanel = ((WrapPanel)this.Content);
-            var nonogramControl = (NonogramView)stackPanel.Children[0];
-            nonogramControl.Nonogram = _solvedNonogram;
-
-            var emptiedNonogram = _solvedNonogram.Clone() as Nonogram;
-            emptiedNonogram.Clear();
-            var solver = new Solver.Solver();
-            solver.Solve(emptiedNonogram);
-
-            var emptiedControl = (NonogramView)stackPanel.Children[1];
-            emptiedControl.Nonogram = emptiedNonogram;
-
-
-            var solvedFullyControl = (NonogramView)stackPanel.Children[2];
-            Nonogram solvedFullyNonogram = emptiedNonogram.Clone() as Nonogram;
-            solvedFullyControl.Nonogram = solvedFullyNonogram;
-
-            solver.RecursivelySolve(solvedFullyNonogram);
-            solvedFullyControl.Nonogram = solvedFullyNonogram;
-
-
-
-            var acSolvedControl = (NonogramView)stackPanel.Children[3];
-            Nonogram acSolvedNonogram = emptiedNonogram.Clone() as Nonogram;
-            solvedFullyControl.Nonogram = solvedFullyNonogram;
-
-            Task.Run(() =>
+            
+            var createHandlers = true;
+            MakeNonograms(createHandlers);
+            this.KeyDown += (o, args) =>
             {
-                Task.Delay(2000);
-                var acSolver = new ArcConsistencySolver();
-                acSolver.Solve(acSolvedNonogram);
-            }).ContinueWith((tsk) =>
-            {
-                acSolvedControl.Nonogram = acSolvedNonogram;
-                UpdateTextBox(acSolvedNonogram);
-            }, TaskScheduler.FromCurrentSynchronizationContext());
-
-            acSolvedControl.PropertyChanged += (sender, args) =>
-            {
-                UpdateTextBox(((NonogramView)sender).Nonogram);
+                if (args.Key == Key.Space)
+                {
+                    MakeNonograms(false);
+                }
             };
-            UpdateTextBox(acSolvedNonogram);
         }
 
-        private void UpdateTextBox(Nonogram n)
+        private void MakeNonograms(bool createHandlers)
         {
-            var content = (WrapPanel)this.Content;
-            var blk = (TextBlock)content.Children[content.Children.Count - 1];
+            var rows = 10;
+            var columns = 20;
+            _solvedNonogram = NonogramFactory.MakeNonogram(rows, columns);
+
+
+            DrawDelayed(() => _solvedNonogram, 0, true);
+
+            DrawDelayed(() =>
+            {
+                var clone = _solvedNonogram.Clone() as Nonogram;
+                clone.Clear();
+                var solver = new Solver.Solver();
+                solver.Solve(clone);
+                return clone;
+            }, 1, createHandlers);
+
+            DrawDelayed(() =>
+            {
+                var clone = _solvedNonogram.Clone() as Nonogram;
+                var solver = new Solver.Solver();
+                solver.RecursivelySolve(clone);
+                return clone;
+            }, 2, createHandlers);
+
+
+            DrawDelayed(() =>
+            {
+                var clone = _solvedNonogram.Clone() as Nonogram;
+                var solver = new ArcConsistencySolver();
+                solver.Solve(clone);
+                return clone;
+            }, 3, createHandlers);
+        }
+
+        
+
+        private void DrawDelayed(Func<Nonogram> producer, int contentIndex, bool addHandler = false)
+        {
+            var task = Task.Run(producer)
+                .ContinueWith(nonogram =>
+                {
+                    DrawNonogram(contentIndex, nonogram.Result, addHandler);
+                }, TaskScheduler.FromCurrentSynchronizationContext());
+        }
+
+
+        private void DrawNonogram(int contentIndex, Nonogram n, bool addHandler = false)
+        {
+            var scrollView = this.Content as ScrollViewer;
+            var contentPanel = scrollView.Content as Panel;
+            var stackPanel = contentPanel.Children[contentIndex] as Panel;
+            var nonogramView = stackPanel.Children[0] as NonogramView;
+            var textBlock = stackPanel.Children[stackPanel.Children.Count - 1] as TextBlock;
+            nonogramView.Nonogram = n;
+            if (addHandler)
+            {
+                nonogramView.PropertyChanged += (sender, args) =>
+                {
+                    var view = sender as NonogramView;
+                    UpdateTextBox(view.Nonogram, textBlock);
+                };
+                UpdateTextBox(n, textBlock);
+            }
+        }
+
+        private void UpdateTextBox(Nonogram n, TextBlock blk)
+        {
+
             var solver = new Solver.Solver();
             for (int i = 0; i < n.Height; i++)
             {
@@ -91,7 +120,7 @@ namespace NonogramSolver
                         blk.Text = $"found error at: row {i}";
                         return;
                     }
-                    
+
                     if (solver.GetRowStatus(n.getColumn(j), n.ColumnDescriptors[j]) == RowStatus.ContainsErrors)
                     {
                         blk.Text = $"found error at: col {j}";
@@ -101,5 +130,6 @@ namespace NonogramSolver
             }
             blk.Text = "no errors hooray";
         }
+        
     }
 }
