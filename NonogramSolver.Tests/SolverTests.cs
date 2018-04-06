@@ -51,10 +51,10 @@ namespace NonogramSolver.Tests
         public void calculate_row_status(int[] ranges, CellState[] states, RowStatus resultStatus)
         {
             var row = MakeList(states);
-            var solver = new Solver.Solver();
+            var solver = new Solver.ContradictionSolver();
             var descriptor = MakeDescriptor(ranges);
 
-            Assert.Equal(resultStatus, solver.GetRowStatus(row, descriptor));
+            Assert.Equal(resultStatus, Utils.GetRowStatus(row, descriptor));
         }
 
         private char CharForCell(CellState state)
@@ -101,9 +101,9 @@ namespace NonogramSolver.Tests
             "...X.XX"})]
         public void generate_permutations(int rowSize, int[] ranges, string[] expected)
         {
-            var solver = new Solver.Solver();
+            var solver = new Solver.ContradictionSolver();
             var descriptor = MakeDescriptor(ranges);
-            var result = solver.MakePossibleStates(rowSize, descriptor);
+            var result = Utils.MakePossibleStates(rowSize, descriptor);
             var stringResult = result.Select(RowToString).ToArray();
             Array.Sort(stringResult);
             Array.Sort(expected);
@@ -116,7 +116,7 @@ namespace NonogramSolver.Tests
         public void find_common_cells(string[] state_values, string result)
         {
             var cellStates = state_values.Select(x => x.Select(CellStateForChar));
-            var solver = new Solver.Solver();
+            var solver = new Solver.ContradictionSolver();
             var commonRow = solver.FindCommonCells(cellStates);
             Assert.Equal(result, RowToString(commonRow));
         }
@@ -127,7 +127,7 @@ namespace NonogramSolver.Tests
         public void remove_conflicting_states(string state, string[][] rowVariants, string[][] expected, int expectedRemoved)
         {
             var cellStates = rowVariants.Select(x => x.Select(y => y.Select(CellStateForChar).ToList()).ToList()).ToList();
-            var solver = new Solver.Solver();
+            var solver = new Solver.ContradictionSolver();
             var commonState = state.Select(CellStateForChar);
             var expectedStates = expected.Select(x => x.Select(y => y.Select(CellStateForChar)));
             var result = solver.RemoveConflictingStates(commonState, 2, cellStates);

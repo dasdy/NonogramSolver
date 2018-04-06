@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NonogramSolver.Solver
 {
@@ -68,7 +66,7 @@ namespace NonogramSolver.Solver
                     
                     if (v.PossibleStates.Count > 1)
                     {
-                        var solver = new Solver();
+                        var solver = new ContradictionSolver();
                         var state = solver.FindCommonCells(v.PossibleStates).ToList();
                         for (int i = 0; i < state.Count; i++)
                         {

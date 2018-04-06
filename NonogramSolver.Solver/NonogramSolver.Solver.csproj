@@ -47,8 +47,9 @@
     <Compile Include="Nonogram.cs" />
     <Compile Include="NonogramFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RecursiveSolver.cs" />
     <Compile Include="RowDescriptor.cs" />
-    <Compile Include="Solver.cs" />
+    <Compile Include="ContradictionSolver.cs" />
     <Compile Include="RowStatus.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>

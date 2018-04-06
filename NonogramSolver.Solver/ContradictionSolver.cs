@@ -6,58 +6,15 @@ using System.Threading.Tasks;
 
 namespace NonogramSolver.Solver
 {
-    public class Solver
+    public class ContradictionSolver
     {
-        public RowStatus GetRowStatus(IList<Cell> row, RowDescriptor rowDescriptor)
-        {
-
-            if (row.All(cell => cell.State != CellState.Undefined))
-            {
-                return CheckFilledRowStatus(row, rowDescriptor);
-            }
-            else
-            {
-                return CheckPartialRowStatus(row, rowDescriptor);
-            }
-        }
-
-        private RowStatus CheckPartialRowStatus(IList<Cell> row, RowDescriptor rowDescriptor)
-        {
-            return RowStatus.FilledPartially;
-        }
-
-        private static RowStatus CheckFilledRowStatus(IList<Cell> row, RowDescriptor rowDescriptor)
-        {
-            int rowIndex = 0;
-            int blockIndex = 0;
-            for (blockIndex = 0; blockIndex < rowDescriptor.BlockSizes.Count; blockIndex++)
-            {
-                int blockSize = rowDescriptor.BlockSizes[blockIndex];
-                //skip empty cells
-                while (rowIndex < row.Count && row[rowIndex].State == CellState.Empty)
-                {
-                    rowIndex++;
-                }
-                int foundBlockSize = 0;
-                while (rowIndex < row.Count && row[rowIndex].State == CellState.Filled)
-                {
-                    rowIndex++;
-                    foundBlockSize++;
-                }
-                if (foundBlockSize != blockSize)
-                {
-                    return RowStatus.ContainsErrors;
-                }
-                rowIndex++;
-            }
-            return RowStatus.FilledCorrectly;
-        }
+        
 
 
         public void RecursivelySolve(Nonogram n)
         {
-            var rowsPossibleStates = n.RowDescriptors.Select(desc => Utils.MakePossibleStates(n.Width, desc).Select(x => x.ToList()).ToList()).ToList();
-            var colsPossibleStates = n.ColumnDescriptors.Select(desc => Utils.MakePossibleStates(n.Height, desc).Select(x => x.ToList()).ToList()).ToList();
+            var rowsPossibleStates = Utils.PossibleStatesForRows(n.Width, n.RowDescriptors);
+            var colsPossibleStates = Utils.PossibleStatesForRows(n.Height, n.ColumnDescriptors);
             List<List<CellState>> rowSolvingCandidates = null;
             List<List<CellState>> colSolvingCandidates = null;
 
@@ -173,8 +130,8 @@ namespace NonogramSolver.Solver
 
         public void Solve(Nonogram n)
         {
-            var rowsPossibleStates = n.RowDescriptors.Select(desc => Utils.MakePossibleStates(n.Width, desc).Select(x => x.ToList()).ToList()).ToList();
-            var colsPossibleStates = n.ColumnDescriptors.Select(desc => Utils.MakePossibleStates(n.Height, desc).Select(x => x.ToList()).ToList()).ToList();
+            var rowsPossibleStates = Utils.PossibleStatesForRows(n.Width, n.RowDescriptors);
+            var colsPossibleStates = Utils.PossibleStatesForRows(n.Height, n.ColumnDescriptors);
             var rowSolvingCandidates = rowsPossibleStates.Select(rowStates => FindCommonCells(rowStates).ToList()).ToList();
             var colSolvingCandidates = colsPossibleStates.Select(rowStates => FindCommonCells(rowStates).ToList()).ToList();
 

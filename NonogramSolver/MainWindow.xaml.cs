@@ -51,7 +51,7 @@ namespace NonogramSolver
             {
                 var clone = _solvedNonogram.Clone() as Nonogram;
                 clone.Clear();
-                var solver = new Solver.Solver();
+                var solver = new Solver.ContradictionSolver();
                 solver.Solve(clone);
                 return clone;
             }, 1, createHandlers);
@@ -59,7 +59,7 @@ namespace NonogramSolver
             DrawDelayed(() =>
             {
                 var clone = _solvedNonogram.Clone() as Nonogram;
-                var solver = new Solver.Solver();
+                var solver = new Solver.ContradictionSolver();
                 solver.RecursivelySolve(clone);
                 return clone;
             }, 2, createHandlers);
@@ -72,28 +72,45 @@ namespace NonogramSolver
                 solver.Solve(clone);
                 return clone;
             }, 3, createHandlers);
+
+            DrawDelayed(() =>
+            {
+                var clone = _solvedNonogram.Clone() as Nonogram;
+                var solver = new RecursiveSolver();
+                solver.Solve(clone);
+                return clone;
+            }, 4, createHandlers);
         }
 
         
 
         private void DrawDelayed(Func<Nonogram> producer, int contentIndex, bool addHandler = false)
         {
+            var sw = new Stopwatch();
+            sw.Start();
             var task = Task.Run(producer)
                 .ContinueWith(nonogram =>
                 {
-                    DrawNonogram(contentIndex, nonogram.Result, addHandler);
+                    sw.Stop();
+                    if (nonogram.Exception != null)
+                    {
+                        MessageBox.Show(nonogram.Exception.ToString());
+                    }
+                    DrawNonogram(contentIndex, nonogram.Result, addHandler, sw.Elapsed);
                 }, TaskScheduler.FromCurrentSynchronizationContext());
         }
 
 
-        private void DrawNonogram(int contentIndex, Nonogram n, bool addHandler = false)
+        private void DrawNonogram(int contentIndex, Nonogram n, bool addHandler, TimeSpan elapsed)
         {
             var scrollView = this.Content as ScrollViewer;
             var contentPanel = scrollView.Content as Panel;
             var stackPanel = contentPanel.Children[contentIndex] as Panel;
             var nonogramView = stackPanel.Children[0] as NonogramView;
+            var timeTxtBlck = stackPanel.Children[stackPanel.Children.Count - 2] as TextBlock;
             var textBlock = stackPanel.Children[stackPanel.Children.Count - 1] as TextBlock;
             nonogramView.Nonogram = n;
+            timeTxtBlck.Text = $"{(int)elapsed.TotalMilliseconds} ms";
             if (addHandler)
             {
                 nonogramView.PropertyChanged += (sender, args) =>
@@ -108,20 +125,20 @@ namespace NonogramSolver
         private void UpdateTextBox(Nonogram n, TextBlock blk)
         {
 
-            var solver = new Solver.Solver();
+            
             for (int i = 0; i < n.Height; i++)
             {
                 for (int j = 0; j < n.Width; j++)
                 {
                     var expected = _solvedNonogram.Cells[i][j].State;
                     var real = n.Cells[i][j].State;
-                    if (solver.GetRowStatus(n.getRow(i), n.RowDescriptors[i]) == RowStatus.ContainsErrors)
+                    if (Utils.GetRowStatus(n.getRow(i), n.RowDescriptors[i]) == RowStatus.ContainsErrors)
                     {
                         blk.Text = $"found error at: row {i}";
                         return;
                     }
 
-                    if (solver.GetRowStatus(n.getColumn(j), n.ColumnDescriptors[j]) == RowStatus.ContainsErrors)
+                    if (Utils.GetRowStatus(n.getColumn(j), n.ColumnDescriptors[j]) == RowStatus.ContainsErrors)
                     {
                         blk.Text = $"found error at: col {j}";
                         return;

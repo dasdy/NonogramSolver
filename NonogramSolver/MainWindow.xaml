@@ -13,27 +13,32 @@
                 <local:NonogramView x:Name="filledNonogram"/>
                 <TextBlock Text="Filled nonogram" HorizontalAlignment="Center"/>
                 <TextBlock Text="sample" HorizontalAlignment="Center"/>
+                <TextBlock Text="sample" HorizontalAlignment="Center"/>
             </StackPanel>
 
             <StackPanel>
                 <local:NonogramView x:Name="emptyNonogram"/>
                 <TextBlock Text="solved regularly" HorizontalAlignment="Center"/>
                 <TextBlock Text="sample" HorizontalAlignment="Center"/>
+                <TextBlock Text="sample" HorizontalAlignment="Center"/>
             </StackPanel>
             <StackPanel>
                 <local:NonogramView x:Name="filledFully"/>
                 <TextBlock Text="regular + one guess" HorizontalAlignment="Center"/>
+                <TextBlock Text="sample" HorizontalAlignment="Center"/>
                 <TextBlock Text="sample" HorizontalAlignment="Center"/>
             </StackPanel>
             <StackPanel>
                 <local:NonogramView x:Name="acSolved"/>
                 <TextBlock Text="arc consistency" HorizontalAlignment="Center"/>
                 <TextBlock Text="sample" HorizontalAlignment="Center"/>
+                <TextBlock Text="sample" HorizontalAlignment="Center"/>
             </StackPanel>
 
             <StackPanel>
                 <local:NonogramView x:Name="recursivelySolved"/>
                 <TextBlock Text="recursively solved" HorizontalAlignment="Center"/>
+                <TextBlock Text="sample" HorizontalAlignment="Center"/>
                 <TextBlock Text="sample" HorizontalAlignment="Center"/>
             </StackPanel>
         </WrapPanel>
