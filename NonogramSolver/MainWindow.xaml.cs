@@ -23,28 +23,42 @@ namespace NonogramSolver
     public partial class MainWindow : Window
     {
         private Nonogram _solvedNonogram;
+        private const int rows = 10;
+        private const int columns = 15;
         public MainWindow()
         {
             InitializeComponent();
             
             var createHandlers = true;
+            _solvedNonogram = NonogramFactory.MakeNonogram(rows, columns);
             MakeNonograms(createHandlers);
             this.KeyDown += (o, args) =>
             {
                 if (args.Key == Key.Space)
                 {
+                    _solvedNonogram = NonogramFactory.MakeNonogram(rows, columns);
+                    ClearNonograms();
                     MakeNonograms(false);
                 }
             };
         }
 
+        private void ClearNonograms()
+        {
+            var scrollView = this.Content as ScrollViewer;
+            var contentPanel = scrollView.Content as Panel;
+            var clearNonogram = _solvedNonogram.Clone() as Nonogram;
+            clearNonogram.Clear();
+            for (int i = 0; i < contentPanel.Children.Count; i++)
+            {
+                var stackPanel = contentPanel.Children[i] as Panel;
+                var nonogramView = stackPanel.Children[0] as NonogramView;
+                nonogramView.Nonogram = clearNonogram;
+            }
+        }
+
         private void MakeNonograms(bool createHandlers)
         {
-            var rows = 10;
-            var columns = 20;
-            _solvedNonogram = NonogramFactory.MakeNonogram(rows, columns);
-
-
             DrawDelayed(() => _solvedNonogram, 0, true);
 
             DrawDelayed(() =>
