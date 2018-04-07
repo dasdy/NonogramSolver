@@ -11,7 +11,7 @@ namespace NonogramSolver.Solver
         
 
 
-        public void RecursivelySolve(Nonogram n)
+        public void SolveWithOneGuess(Nonogram n)
         {
             var rowsPossibleStates = Utils.PossibleStatesForRows(n.Width, n.RowDescriptors);
             var colsPossibleStates = Utils.PossibleStatesForRows(n.Height, n.ColumnDescriptors);

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -25,17 +26,23 @@ namespace NonogramSolver
         private Nonogram _solvedNonogram;
         private const int rows = 10;
         private const int columns = 15;
+        private CancellationTokenSource cts;
         public MainWindow()
         {
             InitializeComponent();
             
             var createHandlers = true;
+            cts = new CancellationTokenSource();
             _solvedNonogram = NonogramFactory.MakeNonogram(rows, columns);
+            ClearNonograms();
             MakeNonograms(createHandlers);
             this.KeyDown += (o, args) =>
             {
                 if (args.Key == Key.Space)
                 {
+                    cts.Cancel();
+                    cts = null;
+                    cts = new CancellationTokenSource();
                     _solvedNonogram = NonogramFactory.MakeNonogram(rows, columns);
                     ClearNonograms();
                     MakeNonograms(false);
@@ -45,6 +52,7 @@ namespace NonogramSolver
 
         private void ClearNonograms()
         {
+            
             var scrollView = this.Content as ScrollViewer;
             var contentPanel = scrollView.Content as Panel;
             var clearNonogram = _solvedNonogram.Clone() as Nonogram;
@@ -65,7 +73,7 @@ namespace NonogramSolver
             {
                 var clone = _solvedNonogram.Clone() as Nonogram;
                 clone.Clear();
-                var solver = new Solver.ContradictionSolver();
+                var solver = new ContradictionSolver();
                 solver.Solve(clone);
                 return clone;
             }, 1, createHandlers);
@@ -73,8 +81,8 @@ namespace NonogramSolver
             DrawDelayed(() =>
             {
                 var clone = _solvedNonogram.Clone() as Nonogram;
-                var solver = new Solver.ContradictionSolver();
-                solver.RecursivelySolve(clone);
+                var solver = new ContradictionSolver();
+                solver.SolveWithOneGuess(clone);
                 return clone;
             }, 2, createHandlers);
 
@@ -102,15 +110,19 @@ namespace NonogramSolver
         {
             var sw = new Stopwatch();
             sw.Start();
+            var cancellationTokenSource = cts;
             var task = Task.Run(producer)
                 .ContinueWith(nonogram =>
                 {
                     sw.Stop();
-                    if (nonogram.Exception != null)
+                    if (!cancellationTokenSource.IsCancellationRequested)
                     {
-                        MessageBox.Show(nonogram.Exception.ToString());
+                        if (nonogram.Exception != null)
+                        {
+                            MessageBox.Show(nonogram.Exception.ToString());
+                        }
+                        DrawNonogram(contentIndex, nonogram.Result, addHandler, sw.Elapsed);
                     }
-                    DrawNonogram(contentIndex, nonogram.Result, addHandler, sw.Elapsed);
                 }, TaskScheduler.FromCurrentSynchronizationContext());
         }
 
