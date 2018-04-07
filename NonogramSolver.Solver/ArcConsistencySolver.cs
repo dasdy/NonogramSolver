@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace NonogramSolver.Solver
 {
-    public class ArcConsistencySolver
+    public class ArcConsistencySolver:ISolver
     {
         public void Solve(Nonogram n)
         {

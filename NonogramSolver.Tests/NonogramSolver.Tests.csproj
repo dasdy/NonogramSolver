@@ -58,6 +58,7 @@
   <ItemGroup>
     <Compile Include="NonogramTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RandomSolverTests.cs" />
     <Compile Include="SolverTests.cs" />
   </ItemGroup>
   <ItemGroup>

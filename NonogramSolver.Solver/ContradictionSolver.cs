@@ -6,11 +6,8 @@ using System.Threading.Tasks;
 
 namespace NonogramSolver.Solver
 {
-    public class ContradictionSolver
+    public class ContradictionSolver:ISolver
     {
-        
-
-
         public void SolveWithOneGuess(Nonogram n)
         {
             var rowsPossibleStates = Utils.PossibleStatesForRows(n.Width, n.RowDescriptors);

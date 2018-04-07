@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NonogramSolver.Solver
 {
-    public class RecursiveSolver
+    public class RecursiveSolver:ISolver
     {
         public void Solve(Nonogram n)
         {
